@@ -14,7 +14,7 @@ from sklearn.model_selection import train_test_split
 
 
 
-STANDARD_SIZE = (300, 167)
+STANDARD_SIZE = (500, 500)
 
 
 def img_to_matrix(filename, verbose=False):
@@ -53,7 +53,7 @@ def main():
 
 
     # training a classifier
-    number = 5
+    number = 10
     pca = decomposition.PCA(n_components=number,whiten=True)
     train_x = pca.fit_transform(train_x,)
 
