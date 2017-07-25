@@ -5,9 +5,13 @@ import numpy as np
 import os
 import pandas as pd
 import pylab as pl
-from sklearn.decomposition import PCA
+from sklearn import decomposition
 from sklearn.externals import joblib
 from sklearn.svm import LinearSVC
+from sklearn.svm import SVC
+from sklearn import cross_validation
+from sklearn.model_selection import train_test_split
+
 
 
 STANDARD_SIZE = (300, 167)
@@ -47,25 +51,13 @@ def main():
 
     train_x, train_y = data[is_train], y[is_train]
 
-    # plot in 2 dimensions
-    pca = PCA(n_components=2)
-    X = pca.fit_transform(data,)
-    df = pd.DataFrame({"x": X[:, 0], "y": X[:, 1],
-                       "label": np.where(y == 1, 'salt', 'soy')})
-    colors = ['red', 'yellow']
-    for label, color in zip(df['label'].unique(), colors):
-        mask = df['label'] == label
-        pl.scatter(df[mask]['x'], df[mask]['y'], c=color, label=label)
-
-    pl.legend()
-    pl.savefig('pca_feature.png')
 
     # training a classifier
-    number = 10
-    pca = PCA(n_components=number)
+    number = 5
+    pca = decomposition.PCA(n_components=number,whiten=True)
     train_x = pca.fit_transform(train_x,)
 
-    svm = LinearSVC(C=1.0)
+    svm = SVC(C=1.0)
     svm.fit(train_x, train_y)
     joblib.dump(svm, 'model.pkl')
 
