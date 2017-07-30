@@ -12,7 +12,6 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score
 from PIL import ImageOps
 import time
-from sklearn import grid_search
 
 np.random.seed(123)
 
@@ -118,7 +117,7 @@ if __name__ == '__main__':
     cross_val_accuracies = []
     test_cross_losses = []
 
-    pca_dim_space = list(range(16,16+1))
+    pca_dim_space = list(range(2,64+1))
     start = time.time()
     for d in pca_dim_space:
         print("\n\n")

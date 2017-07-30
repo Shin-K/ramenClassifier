@@ -12,7 +12,6 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score
 from PIL import ImageOps
 import time
-from sklearn import grid_search
 
 np.random.seed(123)
 
@@ -38,13 +37,15 @@ def flatten_image(img):
     return img_wide[0]
 
 
-def main(X,y,X_test,y_test,pca_dim):
+def main(X,y,X_test,y_test,penalty_c):
     n_splits = 3
+    pca_dim = 16
+    penalty_c = penalty_c
     skf = StratifiedKFold(n_splits=n_splits)
     accuracies = []
     test_probas = []
 
-    print( "Dimension：" + str(pca_dim))
+    print( "Penalty C：" + str(penalty_c))
     for i, (train_idx, val_idx) in enumerate(skf.split(X, y)):
         print("[Fold {}/{}]".format(i+1, n_splits))
         train_x = X[train_idx]
@@ -56,7 +57,7 @@ def main(X,y,X_test,y_test,pca_dim):
         pca = decomposition.PCA(n_components=pca_dim,whiten=True)
         train_x = pca.fit_transform(train_x,)
 
-        svm = SVC(C=1.0, probability=True)
+        svm = SVC(C=penalty_c, probability=True)
         svm.fit(train_x, train_y)
         model_path = 'model_{}.pkl'.format(i)
         joblib.dump(svm, model_path)
@@ -118,11 +119,11 @@ if __name__ == '__main__':
     cross_val_accuracies = []
     test_cross_losses = []
 
-    pca_dim_space = list(range(16,16+1))
+    penalty_c = list(range(1,64+1))
     start = time.time()
-    for d in pca_dim_space:
+    for d in penalty_c:
         print("\n\n")
-        res = main(X,y,X_test,y_test,pca_dim=d)
+        res = main(X,y,X_test,y_test,penalty_c=d)
 
         accuracy = res['test_accuracy']
         test_accuracies.append(accuracy)
@@ -141,7 +142,7 @@ if __name__ == '__main__':
     import matplotlib; matplotlib.use('MacOSX')
     import matplotlib.pyplot as plt
     fig = plt.figure("Generalization test and Cross-Validation accuracy in each PCA dimension")
-    plt.ylim(0.55, 0.9)
+    plt.ylim(0.55, 0.8)
     plt.ylabel('Accuracy')
     plt.xlabel('PCA dimension')
     #plt.plot(pca_dim_space, test_accuracies)
@@ -150,8 +151,8 @@ if __name__ == '__main__':
 
     print("Max Generalization Test accuracy = " + str(max(test_accuracies)))
     print("Min (Test - Cross) loss = " + str(min(test_cross_losses)))
-    line1, = plt.plot(pca_dim_space, test_accuracies, label="Test accuracy", linestyle='--')
-    line2, = plt.plot(pca_dim_space, cross_val_accuracies, label="Cross-Validation accuracy", linewidth=4)
+    line1, = plt.plot(penalty_c, test_accuracies, label="Test accuracy", linestyle='--')
+    line2, = plt.plot(penalty_c, cross_val_accuracies, label="Cross-Validation accuracy", linewidth=4)
 
 
     # Create a legend for the first line.

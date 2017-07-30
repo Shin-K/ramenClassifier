@@ -12,7 +12,6 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score
 from PIL import ImageOps
 import time
-from sklearn import grid_search
 
 np.random.seed(123)
 
@@ -38,8 +37,10 @@ def flatten_image(img):
     return img_wide[0]
 
 
-def main(X,y,X_test,y_test,pca_dim):
-    n_splits = 3
+def main(X,y,X_test,y_test,n_splits):
+#def main(X,y,X_test,y_test,pca_dim):
+    pca_dim = 16
+    n_splits = n_splits
     skf = StratifiedKFold(n_splits=n_splits)
     accuracies = []
     test_probas = []
@@ -118,11 +119,13 @@ if __name__ == '__main__':
     cross_val_accuracies = []
     test_cross_losses = []
 
-    pca_dim_space = list(range(16,16+1))
+    #pca_dim_space = list(range(16,16+1))
+    n_splits = list(range(3, 64 + 1))
     start = time.time()
-    for d in pca_dim_space:
+    #for d in pca_dim_space:
+    for d in n_splits:
         print("\n\n")
-        res = main(X,y,X_test,y_test,pca_dim=d)
+        res = main(X,y,X_test,y_test,n_splits=d)
 
         accuracy = res['test_accuracy']
         test_accuracies.append(accuracy)
@@ -150,9 +153,10 @@ if __name__ == '__main__':
 
     print("Max Generalization Test accuracy = " + str(max(test_accuracies)))
     print("Min (Test - Cross) loss = " + str(min(test_cross_losses)))
-    line1, = plt.plot(pca_dim_space, test_accuracies, label="Test accuracy", linestyle='--')
-    line2, = plt.plot(pca_dim_space, cross_val_accuracies, label="Cross-Validation accuracy", linewidth=4)
-
+    #line1, = plt.plot(pca_dim_space, test_accuracies, label="Test accuracy", linestyle='--')
+    #line2, = plt.plot(pca_dim_space, cross_val_accuracies, label="Cross-Validation accuracy", linewidth=4)
+    line1, = plt.plot(n_splits, test_accuracies, label="Test accuracy", linestyle='--')
+    line2, = plt.plot(n_splits, cross_val_accuracies, label="Cross-Validation accuracy", linewidth=4)
 
     # Create a legend for the first line.
     first_legend = plt.legend(handles=[line1], loc=1)
